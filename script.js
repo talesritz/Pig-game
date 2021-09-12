@@ -8,6 +8,7 @@ const newGameBtn = document.querySelector('.btn--new'),
   player2 = document.querySelector('.player--1');
 let scorePoints = 0;
 let currentPlayer = 'player--0';
+let playing;
 
 // console.log((player1.children[1].textContent = 100));
 
@@ -19,17 +20,22 @@ const resetPage = function () {
   player1.classList.add('player--active');
   player2.classList.remove('player--active');
   currentPlayer = 'player--0';
-  dice.src = 'dice-1.png';
+  dice.classList.add('hidden');
+  // dice.src = 'dice-1.png';
   scorePoints = 0;
+  playing = true;
 };
 
 //Show how many points you got stored in the current block for either player
 const currentScore = function (player, diceNum) {
-  scorePoints += diceNum;
-  if (player === 'player--0') {
-    document.querySelector('#current--0').textContent = scorePoints;
-  } else {
-    document.querySelector('#current--1').textContent = scorePoints;
+  if (playing) {
+    dice.classList.remove('hidden');
+    scorePoints += diceNum;
+    if (player === 'player--0') {
+      document.querySelector('#current--0').textContent = scorePoints;
+    } else {
+      document.querySelector('#current--1').textContent = scorePoints;
+    }
   }
 };
 
@@ -49,72 +55,81 @@ const switchPlayer = function (player) {
   scorePoints = 0;
 };
 
+//stores the current points on the player score and switches turns from one to another
 const hold = function () {
-  let p1Score = Number(player1.children[1].textContent);
-  let p2Score = Number(player2.children[1].textContent);
+  if (playing) {
+    dice.classList.remove('hidden');
+    let p1Score = Number(player1.children[1].textContent);
+    let p2Score = Number(player2.children[1].textContent);
 
-  if (currentPlayer === 'player--0') {
-    p1Score += scorePoints;
-    if (p1Score >= 100) {
-      document.querySelector('#score--0').textContent = 100;
-      document.querySelector('#name--0').textContent = 'YOU WON!';
+    if (currentPlayer === 'player--0') {
+      p1Score += scorePoints;
+      if (p1Score >= 100) {
+        document.querySelector('#score--0').textContent = 100;
+        document.querySelector('#name--0').textContent = 'YOU WON!';
+        playing = false;
+      } else {
+        document.querySelector('#score--0').textContent = p1Score;
+        switchPlayer(currentPlayer);
+      }
     } else {
-      document.querySelector('#score--0').textContent = p1Score;
-      switchPlayer(currentPlayer);
+      p2Score += scorePoints;
+      if (p2Score >= 100) {
+        document.querySelector('#score--1').textContent = 100;
+        document.querySelector('#name--1').textContent = 'YOU WON!';
+        playing = false;
+      } else {
+        document.querySelector('#score--1').textContent = p2Score;
+        switchPlayer(currentPlayer);
+      }
     }
-  } else {
-    p2Score += scorePoints;
-    if (p2Score >= 100) {
-      document.querySelector('#score--1').textContent = 100;
-      document.querySelector('#name--1').textContent = 'YOU WON!';
-    } else {
-      document.querySelector('#score--1').textContent = p2Score;
-      switchPlayer(currentPlayer);
-    }
+    console.log(p1Score, p2Score);
   }
-  console.log(p1Score, p2Score);
 };
 
 //function responsible for sorting numbers, showing the new dice on the page and calling other functions to manipulate current points and score points
 const rollDice = function () {
-  let randomNum = Math.trunc(Math.random() * 6) + 1;
+  if (playing) {
+    let randomNum = Math.trunc(Math.random() * 6) + 1;
 
-  //   console.log(randomNum);
+    //   console.log(randomNum);
 
-  switch (randomNum) {
-    case 1:
-      dice.src = 'dice-1.png';
-      if (currentPlayer === 'player--0') {
-        switchPlayer(currentPlayer);
-        currentPlayer = 'player--1';
-      } else {
-        switchPlayer(currentPlayer);
-        currentPlayer = 'player--0';
-      }
-      break;
-    case 2:
-      dice.src = 'dice-2.png';
-      currentScore(currentPlayer, randomNum);
-      break;
-    case 3:
-      dice.src = 'dice-3.png';
-      currentScore(currentPlayer, randomNum);
-      break;
-    case 4:
-      dice.src = 'dice-4.png';
-      currentScore(currentPlayer, randomNum);
-      break;
-    case 5:
-      dice.src = 'dice-5.png';
-      currentScore(currentPlayer, randomNum);
-      break;
-    case 6:
-      dice.src = 'dice-6.png';
-      currentScore(currentPlayer, randomNum);
-      break;
+    switch (randomNum) {
+      case 1:
+        dice.src = 'dice-1.png';
+        if (currentPlayer === 'player--0') {
+          switchPlayer(currentPlayer);
+          currentPlayer = 'player--1';
+        } else {
+          switchPlayer(currentPlayer);
+          currentPlayer = 'player--0';
+        }
+        break;
+      case 2:
+        dice.src = 'dice-2.png';
+        currentScore(currentPlayer, randomNum);
+        break;
+      case 3:
+        dice.src = 'dice-3.png';
+        currentScore(currentPlayer, randomNum);
+        break;
+      case 4:
+        dice.src = 'dice-4.png';
+        currentScore(currentPlayer, randomNum);
+        break;
+      case 5:
+        dice.src = 'dice-5.png';
+        currentScore(currentPlayer, randomNum);
+        break;
+      case 6:
+        dice.src = 'dice-6.png';
+        currentScore(currentPlayer, randomNum);
+        break;
+    }
   }
 };
 
+resetPage();
 newGameBtn.addEventListener('click', resetPage);
 rollDiceBtn.addEventListener('click', rollDice);
 holdBtn.addEventListener('click', hold);
